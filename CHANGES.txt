@@ -1,64 +1,7 @@
-Apache ManifoldCF Plugin for Apache Solr 4.x change Log
+Apache ManifoldCF Plugin for Apache Solr 5.x change Log
 $Id$
-
-======================= 2.1-SNAPSHOT =====================
-
-CONNECTORS-914: Go to a Maven build system.
-(Ahmet Arslan)
-
-CONNECTORS-934 : Check if log level is enabled before constructing log message.
-(Ahmet Arslan)
-
-======================= Release 2.0 =====================
-
-CONNECTORS-886: Provide [allow|deny]_token_parent fields.
-Upgrade to this version now requires reindexing.
-(Shinichiro Abe, Karl Wright)
-
-CONNECTORS-848: Build against Lucene/Solr 4.6.0.
-
-======================= Release 1.1 =====================
-
-CONNECTORS-825: Fix infinite loop parsing multi-domain arguments.
-(Shinichiro Abe)
-
-Add functionality making the plugin compatible with multi-domain
-features of ManifoldCF.  Specifically, allow multiple domain/username
-tuples to be passed in the request.
-(Karl Wright)
-
-======================= Release 0.4 =====================
-
-CONNECTORS-534: Repackage plugins to have a true binary release,
-with appropriate DEPENDENCIES.txt, README's etc.
-(Karl Wright)
-
-Port to Solr 4.1.0.
-(Karl Wright)
-
-======================= Release 0.3 =====================
-
-CONNECTORS-595: Fix tests to use new initCore() conventions and
-test resource layout.
-(Karl Wright)
-
-Port to final release of Solr 4.0.0.
-(Karl Wright)
-
-======================= Release 0.2 =====================
-
-CONNECTORS-485: Port to the latest 4.x code.
-(Karl Wright)
-
-CONNECTORS-354: Add a parameter to allow the maximum connection pool
-size to be configurated in solrconfig.xml.
-(Karl Wright)
-
-CONNECTORS-333: Use multithreaded connection manager and tcp-no-delay
-in order to avoid sockets accumulating in CLOSE_WAIT.
-(Simon Willnauer via Karl Wright)
 
 ======================= Release 0.1 =====================
 
 Initial commit.
-(Karl Wright)
+(Ahmet Arslan)

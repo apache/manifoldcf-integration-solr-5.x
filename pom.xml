@@ -20,12 +20,12 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.manifoldcf.solr</groupId>
 
-  <name>ManifoldCF Solr 4.x Plugin</name>
-  <artifactId>solr4x-plugin-mcf</artifactId>
-  <version>2.1-SNAPSHOT</version>
+  <name>ManifoldCF Solr 5.x Plugin</name>
+  <artifactId>apache-manifoldcf-solr5x-plugin</artifactId>
+  <version>0.1</version>
   <packaging>jar</packaging>
-  <description>ManifoldCF Plugin for Apache Solr 4.x</description>
-  <inceptionYear>2014</inceptionYear>
+  <description>ManifoldCF Plugin for Apache Solr 5.x</description>
+  <inceptionYear>2015</inceptionYear>
 
   <organization>
     <name>The Apache Software Foundation</name>
@@ -34,8 +34,7 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <slf4j.version>1.6.6</slf4j.version>
-    <solr.version>4.7.0</solr.version>
+    <solr.version>5.0.0</solr.version>
   </properties>
 
   <dependencies>
@@ -54,14 +53,6 @@
       <type>jar</type>
       <scope>compile</scope>
     </dependency>
-    
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-      <version>${slf4j.version}</version>
-      <scope>compile</scope>
-      <type>jar</type>
-     </dependency>
 
     <dependency>
       <groupId>commons-logging</groupId>
@@ -80,7 +71,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>2.17</version>
+        <version>2.18.1</version>
         <configuration>
           <argLine>-Xmx1024m</argLine>
         </configuration>
@@ -89,17 +80,17 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.1</version>
+        <version>3.2</version>
         <configuration>
           <encoding>utf-8</encoding>
-          <source>1.6</source>
-          <target>1.6</target>
+          <source>1.7</source>
+          <target>1.7</target>
         </configuration>
       </plugin>
 
       <plugin>
         <artifactId>maven-jar-plugin</artifactId>
-        <version>2.4</version>
+        <version>2.5</version>
         <configuration>
           <archive>
             <manifestEntries>
@@ -118,7 +109,7 @@
 
       <plugin>
         <artifactId>maven-assembly-plugin</artifactId>
-        <version>2.4</version>
+        <version>2.5.3</version>
         <configuration>
           <descriptors>
             <descriptor>src/main/assembly/bin.xml</descriptor>

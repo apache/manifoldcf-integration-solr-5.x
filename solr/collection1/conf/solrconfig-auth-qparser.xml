@@ -27,8 +27,6 @@
   <updateHandler class="solr.DirectUpdateHandler2">
   </updateHandler>
 
-  <requestHandler name="/update"     class="solr.XmlUpdateRequestHandler" />
-
   <!-- test MCF Security Filter settings -->
   <queryParser name="mcf-security_param" class="org.apache.solr.mcf.ManifoldCFQParserPlugin" >
     <str name="AuthorityServiceBaseURL">http://localhost:8347/mcf-as</str>

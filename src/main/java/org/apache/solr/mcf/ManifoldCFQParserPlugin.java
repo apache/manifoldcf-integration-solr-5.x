@@ -16,6 +16,14 @@
 */
 package org.apache.solr.mcf;
 
+import org.apache.http.ParseException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.config.SocketConfig;
+import org.apache.http.entity.ContentType;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.lucene.index.*;
 import org.apache.lucene.search.*;
 import org.apache.solr.search.QParserPlugin;
@@ -28,15 +36,13 @@ import org.apache.solr.core.CloseHook;
 import org.apache.solr.core.SolrCore;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.HttpResponse;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.util.EntityUtils;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.DefaultRedirectStrategy;
-import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.slf4j.*;
 
 import java.io.*;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.net.*;
 
@@ -75,9 +81,9 @@ public class ManifoldCFQParserPlugin extends QParserPlugin
   String fieldDenyParent = null;
   int connectionTimeOut;
   int socketTimeOut;
-  Integer connectionManagerSynchronizer = new Integer(0);
-  ThreadSafeClientConnManager httpConnectionManager = null;
-  DefaultHttpClient client = null;
+  final Integer connectionManagerSynchronizer = 0;
+  PoolingHttpClientConnectionManager httpConnectionManager = null;
+  HttpClient client = null;
   int poolSize;
   
   public ManifoldCFQParserPlugin()
@@ -108,7 +114,7 @@ public class ManifoldCFQParserPlugin extends QParserPlugin
     fieldAllowParent = allowAttributePrefix+"parent";
     fieldDenyParent = denyAttributePrefix+"parent";
     Integer connectionPoolSize = (Integer)args.get("ConnectionPoolSize");
-    poolSize = (connectionPoolSize==null)?50:connectionPoolSize.intValue();
+    poolSize = (connectionPoolSize==null)?50:connectionPoolSize;
   }
   
   protected void initializeClient(SolrCore core)
@@ -118,16 +124,30 @@ public class ManifoldCFQParserPlugin extends QParserPlugin
       if (client == null)
       {
         // Initialize the connection pool
-        httpConnectionManager = new ThreadSafeClientConnManager();
+        httpConnectionManager = new PoolingHttpClientConnectionManager();
         httpConnectionManager.setMaxTotal(poolSize);
         httpConnectionManager.setDefaultMaxPerRoute(poolSize);
-        BasicHttpParams params = new BasicHttpParams();
-        params.setBooleanParameter(CoreConnectionPNames.TCP_NODELAY,true);
-        params.setBooleanParameter(CoreConnectionPNames.STALE_CONNECTION_CHECK,false);
-        params.setIntParameter(CoreConnectionPNames.SO_TIMEOUT,socketTimeOut);
-        params.setIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT,connectionTimeOut);
-        client = new DefaultHttpClient(httpConnectionManager,params);
-        client.setRedirectStrategy(new DefaultRedirectStrategy());
+
+        RequestConfig.Builder requestBuilder = RequestConfig.custom()
+                .setCircularRedirectsAllowed(true)
+                .setSocketTimeout(socketTimeOut)
+                .setStaleConnectionCheckEnabled(false)
+                .setExpectContinueEnabled(true)
+                .setConnectTimeout(connectionTimeOut)
+                .setConnectionRequestTimeout(socketTimeOut);
+
+        HttpClientBuilder clientBuilder = HttpClients.custom()
+                .setConnectionManager(httpConnectionManager)
+                .setMaxConnTotal(1)
+                .disableAutomaticRetries()
+                .setDefaultRequestConfig(requestBuilder.build())
+                .setRedirectStrategy(new DefaultRedirectStrategy())
+                .setDefaultSocketConfig(SocketConfig.custom()
+                        .setTcpNoDelay(true)
+                        .setSoTimeout(socketTimeOut)
+                        .build());
+        client = clientBuilder.build();
+
         core.addCloseHook(new CloseHandler());
       }
     }
@@ -158,7 +178,7 @@ public class ManifoldCFQParserPlugin extends QParserPlugin
       List<String> userAccessTokens;
       
       // Map from domain to user
-      Map<String,String> domainMap = new HashMap<String,String>();
+      Map<String,String> domainMap = new HashMap<>();
       
       // Get the authenticated user name from the parameters
       String authenticatedUserName = params.get(AUTHENTICATED_USER_NAME);
@@ -191,7 +211,7 @@ public class ManifoldCFQParserPlugin extends QParserPlugin
       {
         // No authenticated user name.
         // mod_authz_annotate may be in use upstream, so look for tokens from it.
-        userAccessTokens = new ArrayList<String>();
+        userAccessTokens = new ArrayList<>();
         String[] passedTokens = params.getParams(USER_TOKENS);
         if (passedTokens == null)
         {
@@ -283,7 +303,7 @@ public class ManifoldCFQParserPlugin extends QParserPlugin
     protected Query calculateCompleteSubquery(String allowField, String denyField, Query allowOpen, Query denyOpen, List<String> userAccessTokens)
     {
       BooleanQuery bq = new BooleanQuery();
-      bq.setMaxClauseCount(1000000);
+      BooleanQuery.setMaxClauseCount(1000000);
       
       // Add the empty-acl case
       BooleanQuery subUnprotectedClause = new BooleanQuery();
@@ -335,53 +355,40 @@ public class ManifoldCFQParserPlugin extends QParserPlugin
         int rval = httpResponse.getStatusLine().getStatusCode();
         if (rval != 200)
         {
-          String response = EntityUtils.toString(httpResponse.getEntity(),"utf-8");
+          String response = EntityUtils.toString(httpResponse.getEntity(), StandardCharsets.UTF_8);
           throw new SolrException(SolrException.ErrorCode.SERVER_ERROR,"Couldn't fetch user's access tokens from ManifoldCF authority service: "+Integer.toString(rval)+"; "+response);
         }
-        InputStream is = httpResponse.getEntity().getContent();
-        try
+
+        try(InputStream is = httpResponse.getEntity().getContent())
         {
-          String charSet = EntityUtils.getContentCharSet(httpResponse.getEntity());
-          if (charSet == null)
-            charSet = "utf-8";
-          Reader r = new InputStreamReader(is,charSet);
+          Charset charSet;
           try
-          {
-            BufferedReader br = new BufferedReader(r);
-            try
             {
+              ContentType ct = ContentType.get(httpResponse.getEntity());
+              if (ct == null)
+                charSet = StandardCharsets.UTF_8;
+              else
+                charSet = ct.getCharset();
+            }catch (ParseException e){
+                charSet = StandardCharsets.UTF_8;
+            }
+
+          try( Reader r = new InputStreamReader(is,charSet); BufferedReader br = new BufferedReader(r)) {
               // Read the tokens, one line at a time.  If any authorities are down, we have no current way to note that, but someday we will.
-              List<String> tokenList = new ArrayList<String>();
-              while (true)
-              {
+              List<String> tokenList = new ArrayList<>();
+              while (true) {
                 String line = br.readLine();
                 if (line == null)
                   break;
-                if (line.startsWith("TOKEN:"))
-                {
+                if (line.startsWith("TOKEN:")) {
                   tokenList.add(line.substring("TOKEN:".length()));
-                }
-                else
-                {
-                  // It probably says something about the state of the authority(s) involved, so log it
-                  LOG.info("Saw authority response "+line);
+                } else {
+                   // It probably says something about the state of the authority(s) involved, so log it
+                  LOG.info("Saw authority response " + line);
                 }
               }
               return tokenList;
-            }
-            finally
-            {
-              br.close();
-            }
           }
-          finally
-          {
-            r.close();
-          }
-        }
-        finally
-        {
-          is.close();
         }
       }
       finally

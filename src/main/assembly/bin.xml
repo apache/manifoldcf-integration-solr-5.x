@@ -39,9 +39,23 @@
         </moduleSet>
     </moduleSets>
     <fileSets>
+        
         <fileSet>
+            <directory>target</directory>
+            <outputDirectory/>
+            <fileMode>644</fileMode>
+            <directoryMode>755</directoryMode>
             <includes>
-                <include>**/target/*.jar</include>
+                <include>apache-manifoldcf-solr5x-plugin-${project.version}.jar</include>
+            </includes>
+        </fileSet>
+        
+        <fileSet>
+            <directory>.</directory>
+            <outputDirectory/>
+            <fileMode>644</fileMode>
+            <directoryMode>755</directoryMode>
+            <includes>
                 <include>README.txt</include>
                 <include>LICENSE.txt</include>
                 <include>NOTICE.txt</include>

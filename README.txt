@@ -21,22 +21,15 @@ This version of this component is fully functional with Apache ManifoldCF 1.6 an
 above.  It is backwards compatible with earlier versions as well, except for the fact
 that two additional Solr fields are required for this plugin to work.
 
-Upgrading
----------
 
-If you are replacing a version of Apache ManifoldCF Plugin for Apache Solr 4.x that is
-older than version 2.0, you must declare two additional fields (representing parent
-acls and parent deny acls), and reindex all your documents, so all six fields have the.
-correct values. Otherwise, the plugin will prevent you from viewing any documents.
-
-Instructions for Building Apache ManifoldCF Plugin for Apache Solr 4.x from Source
+Instructions for Building Apache ManifoldCF Plugin for Apache Solr 5.x from Source
 ------------------------------------------------------------------------------
 
-1. Download the Java SE 6 JDK (Java Development Kit), or greater, from
+1. Download the Java SE 7 JDK (Java Development Kit), or greater, from
    http://www.oracle.com/technetwork/java/index.html.
    You will need the JDK installed, and the %JAVA_HOME%\bin directory included
    on your command path.  To test this, issue a "java -version" command from your
-   shell and verify that the Java version is 1.6 or greater.
+   shell and verify that the Java version is 1.7 or greater.
 
 2. Download and install Maven 3.0 or later.  Maven installation and configuration
    instructions can be found here:  http://maven.apache.org
@@ -47,9 +40,9 @@ Instructions for Building Apache ManifoldCF Plugin for Apache Solr 4.x from Sour
 
    mvn package assembly:assembly
 
-   The JAR packages can be found in the target folder:
+   The JAR package can be found in the target folder:
 
-   target/solr4x-plugin-mcf-<VERSION>.jar where <VERSION> is the release version
+   target/apache-manifoldcf-solr5x-plugin-<VERSION>.jar where <VERSION> is the release version
 
 
 Getting Started
@@ -161,7 +154,7 @@ you will still need to use this Solr component to modify the user query.  All yo
 Licensing
 ---------
 
-Apache ManifoldCF Plugin for Apache Solr 4.x is licensed under the
+Apache ManifoldCF Plugin for Apache Solr 5.x is licensed under the
 Apache License 2.0. See the files called LICENSE.txt and NOTICE.txt
 for more information.
 
@@ -190,7 +183,7 @@ code and source code.
 The following provides more details on the included software that
 may be subject to export controls on cryptographic software:
 
-  The Apache ManifoldCF Solr 4.x Plugin does not include any
+  The Apache ManifoldCF Solr 5.x Plugin does not include any
   implementation or usage of cryptographic software at this time.
   
 Contact
