@@ -21,23 +21,7 @@
         <format>tar.gz</format>
         <format>zip</format>
     </formats>
-    <moduleSets>
-        <moduleSet>
-            <excludes>
-            </excludes>
-            <binaries>
-                <outputDirectory>lib</outputDirectory>
-                <unpack>false</unpack>
-                <dependencySets>
-                    <dependencySet>
-                        <excludes>
-                            <exclude>org.slf4j:*</exclude>
-                        </excludes>
-                    </dependencySet>
-                </dependencySets>
-            </binaries>
-        </moduleSet>
-    </moduleSets>
+    
     <fileSets>
         
         <fileSet>
