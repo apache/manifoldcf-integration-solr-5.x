@@ -21,7 +21,7 @@
   <groupId>org.apache.manifoldcf.solr</groupId>
 
   <name>ManifoldCF Solr 5.x Plugin</name>
-  <artifactId>apache-manifoldcf-solr5x-plugin</artifactId>
+  <artifactId>apache-manifoldcf-solr-5.x-plugin</artifactId>
   <version>2.0</version>
   <packaging>jar</packaging>
   <description>ManifoldCF Plugin for Apache Solr 5.x</description>
