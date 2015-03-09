@@ -30,7 +30,7 @@
             <fileMode>644</fileMode>
             <directoryMode>755</directoryMode>
             <includes>
-                <include>apache-manifoldcf-solr5x-plugin-${project.version}.jar</include>
+                <include>${project.artifactId}-${project.version}.jar</include>
             </includes>
         </fileSet>
         

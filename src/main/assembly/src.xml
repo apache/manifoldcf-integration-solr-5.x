@@ -33,6 +33,8 @@
                 <exclude>**/.*/**</exclude>
                 <exclude>**/*.iml/**</exclude>
                 <exclude>**/*.patch/**</exclude>
+                <exclude>**/*.sh/**</exclude>
+                <exclude>**/*.bat/**</exclude>
                 <exclude>**/target/**</exclude>
                 <exclude>**/lib/**</exclude>
                 <exclude>**/data/**</exclude>
