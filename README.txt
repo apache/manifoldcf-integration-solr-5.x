@@ -53,30 +53,67 @@ a Query Parser plugin.  The second is using a Search Component.  In both cases,
 the first step is to have ManifoldCF installed and running.  See:
 http://manifoldcf.apache.org/release/trunk/en_US/how-to-build-and-deploy.html
 
-Then, you will need to add fields to your Solr schema.xml file that can be used
-to contain document authorization information.  There will need to be six of these
-fields, an 'allow' field for documents, parents, and shares, and a 'deny' field for
-documents, parents, and shares.  For example:
+Then, in order to store the document authorization information you need to add
+'allow' and 'deny' fields for documents, parents, and shares to your Solr
+index. Depending on your schemaFactory setting in solrconfig.xml you have to 
+use either the schema.xml file for 'ClassicIndexSchemaFactory' or the schema
+API for 'ManagedIndexSchemaFactory'. 
+See section 'Managed Schema Definition in SolrConfig' in the Solr Reference Gude
+https://www.apache.org/dyn/closer.cgi/lucene/solr/ref-guide/apache-solr-ref-guide-5.0.pdf
 
-  <field name="allow_token_document" type="string" indexed="true" stored="false"
-    multiValued="true" required="false" default="__nosecurity__"/>
-  <field name="allow_token_parent" type="string" indexed="true" stored="false"
-    multiValued="true" required="false" default="__nosecurity__"/>
-  <field name="allow_token_share" type="string" indexed="true" stored="false"
-    multiValued="true" required="false" default="__nosecurity__"/>
-  <field name="deny_token_document" type="string" indexed="true" stored="false"
-    multiValued="true" required="false" default="__nosecurity__"/>
-  <field name="deny_token_parent" type="string" indexed="true" stored="false"
-    multiValued="true" required="false" default="__nosecurity__"/>
-  <field name="deny_token_share" type="string" indexed="true" stored="false"
-    multiValued="true" required="false" default="__nosecurity__"/>
+For schema.xml simply add the following field definitions to the <schema>
+section:
 
-The default value of "__nosecurity__" is required by this plugin, so do not forget
-to include it.
+  <field name="allow_token_document" type="string" indexed="true" stored="true"
+    multiValued="true" required="true" default="__nosecurity__"/>
+  <field name="allow_token_parent" type="string" indexed="true" stored="true"
+    multiValued="true" required="true" default="__nosecurity__"/>
+  <field name="allow_token_share" type="string" indexed="true" stored="true"
+    multiValued="true" required="true" default="__nosecurity__"/>
+  <field name="deny_token_document" type="string" indexed="true" stored="true"
+    multiValued="true" required="true" default="__nosecurity__"/>
+  <field name="deny_token_parent" type="string" indexed="true" stored="true"
+    multiValued="true" required="true" default="__nosecurity__"/>
+  <field name="deny_token_share" type="string" indexed="true" stored="true"
+    multiValued="true" required="true" default="__nosecurity__"/>
+
+To define the fields via schema API use the curl command instead:
+
+curl -X POST -H 'Content-type:application/json' --data-binary '{ 
+  "add-field" : [
+  { "name":"allow_token_document", "type":"string", "indexed":"true",
+    "stored":"true", "multiValued":"true", "required":"true",
+    "default":"__nosecurity__" },
+  { "name":"allow_token_parent",   "type":"string", "indexed":"true",
+    "stored":"true", "multiValued":"true", "required":"true",
+    "default":"__nosecurity__" },
+  { "name":"allow_token_share",    "type":"string", "indexed":"true",
+    "stored":"true", "multiValued":"true", "required":"true", 
+    "default":"__nosecurity__" },
+  { "name":"deny_token_document",  "type":"string", "indexed":"true",
+    "stored":"true", "multiValued":"true", "required":"true",
+    "default":"__nosecurity__" },
+  { "name":"deny_token_parent",    "type":"string", "indexed":"true",
+    "stored":"true", "multiValued":"true", "required":"true",
+    "default":"__nosecurity__" },
+  { "name":"deny_token_share",     "type":"string", "indexed":"true",
+    "stored":"true", "multiValued":"true", "required":"true",
+    "default":"__nosecurity__"}
+]}' http://localhost:8983/solr/<collection_name>/schema
+
+Replace <collection_name> with your core or collection name respectively.
+
+The default value of "__nosecurity__" is manadatory because the queries will be
+rewritten to use all of these 6 fields. If a field is missing in the index then
+you will get no results for your search.
+
+Check the field definitions with
+
+curl http://localhost:8983/solr/<collection_name>/schema/fields
 
 
 Using the Query Parser Plugin
-----------------------------
+-----------------------------
 
 To set up the query parser plugin, modify your solrconfig.xml to add the query parser:
 
@@ -89,7 +126,7 @@ To set up the query parser plugin, modify your solrconfig.xml to add the query p
 
 Hook up the search component in the solrconfig.xml file wherever you want it, e.g.:
 
-<requestHandler name="search" class="solr.SearchHandler" default="true">
+<requestHandler name="/select" class="solr.SearchHandler">
   <lst name="appends">
     <str name="fq">{!manifoldCFSecurity}</str>
   </lst>
@@ -98,7 +135,7 @@ Hook up the search component in the solrconfig.xml file wherever you want it, e.
 
 
 Using the Search Component
-----------------------------
+--------------------------
 
 To set up the search component, modify your solrconfig.xml to add the search component:
 
@@ -111,7 +148,7 @@ To set up the search component, modify your solrconfig.xml to add the search com
 
 Hook up the search component in the solrconfig.xml file wherever you want it, e.g.:
 
-<requestHandler name="search" class="solr.SearchHandler" default="true">
+<requestHandler name="/select" class="solr.SearchHandler">
   <arr name="last-components">
     <str>manifoldCFSecurity</str>
   </arr>
