@@ -3,6 +3,8 @@ $Id$
 
 ======================= 2.2-dev ======================
 
+CONNECTORS-1185: Make sure socket timeouts are actually honored in http connections.
+(Ahmet Arslan)
 
 ======================= Release 2.1 =====================
 

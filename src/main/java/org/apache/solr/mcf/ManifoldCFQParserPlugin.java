@@ -127,6 +127,10 @@ public class ManifoldCFQParserPlugin extends QParserPlugin
         httpConnectionManager = new PoolingHttpClientConnectionManager();
         httpConnectionManager.setMaxTotal(poolSize);
         httpConnectionManager.setDefaultMaxPerRoute(poolSize);
+        httpConnectionManager.setDefaultSocketConfig(SocketConfig.custom()
+                .setTcpNoDelay(true)
+                .setSoTimeout(socketTimeOut)
+                .build());
 
         RequestConfig.Builder requestBuilder = RequestConfig.custom()
                 .setCircularRedirectsAllowed(true)
@@ -141,11 +145,8 @@ public class ManifoldCFQParserPlugin extends QParserPlugin
                 .setMaxConnTotal(1)
                 .disableAutomaticRetries()
                 .setDefaultRequestConfig(requestBuilder.build())
-                .setRedirectStrategy(new DefaultRedirectStrategy())
-                .setDefaultSocketConfig(SocketConfig.custom()
-                        .setTcpNoDelay(true)
-                        .setSoTimeout(socketTimeOut)
-                        .build());
+                .setRedirectStrategy(new DefaultRedirectStrategy());
+
         client = clientBuilder.build();
 
         core.addCloseHook(new CloseHandler());

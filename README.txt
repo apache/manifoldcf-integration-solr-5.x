@@ -42,7 +42,7 @@ Instructions for Building Apache ManifoldCF Plugin for Apache Solr 5.x from Sour
 
    The JAR package can be found in the target folder:
 
-   target/apache-manifoldcf-solr5x-plugin-<VERSION>.jar where <VERSION> is the release version
+   target/apache-manifoldcf-solr-5.x-plugin-<VERSION>.jar where <VERSION> is the release version
 
 
 Getting Started
