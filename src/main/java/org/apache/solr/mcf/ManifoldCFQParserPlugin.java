@@ -135,14 +135,13 @@ public class ManifoldCFQParserPlugin extends QParserPlugin
         RequestConfig.Builder requestBuilder = RequestConfig.custom()
                 .setCircularRedirectsAllowed(true)
                 .setSocketTimeout(socketTimeOut)
-                .setStaleConnectionCheckEnabled(false)
+                .setStaleConnectionCheckEnabled(true)
                 .setExpectContinueEnabled(true)
                 .setConnectTimeout(connectionTimeOut)
                 .setConnectionRequestTimeout(socketTimeOut);
 
         HttpClientBuilder clientBuilder = HttpClients.custom()
                 .setConnectionManager(httpConnectionManager)
-                .setMaxConnTotal(1)
                 .disableAutomaticRetries()
                 .setDefaultRequestConfig(requestBuilder.build())
                 .setRedirectStrategy(new DefaultRedirectStrategy());
